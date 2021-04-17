@@ -36,6 +36,8 @@ function serverResponseCallbackFactory(tableName) {
     const tbl = new Table(tblNode);
     let targets = [];
 
+    tbl.hide();
+
     tblNode.find(".goose-export-result").click(function () {
         const result = tbl.filterColumns(targets).exportAsCsv();
         saveData(result, "result.csv");
@@ -50,8 +52,12 @@ function serverResponseCallbackFactory(tableName) {
         if (data.ok) {
             tbl.loadData(data.data.table);
             targets = data.data.targets;
+            tbl.showTable();
+            tbl.hideWaiting();
         }
     }
+
+    f.tbl = tbl;
 
     return f;
 }
@@ -108,6 +114,10 @@ $(document).ready(function () {
                 event.preventDefault();
                 const form = $(this)[0];
                 const formData = new FormData(form);
+
+                serverResponseCallback.tbl.show();
+                serverResponseCallback.tbl.hideTable();
+                serverResponseCallback.tbl.showWaiting();
 
                 $.ajax({
                     url: $(this).attr("action"),
