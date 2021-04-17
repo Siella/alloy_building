@@ -1,0 +1,25 @@
+{% block table %}
+    <div class="row text-center" id="{{ id }}">
+        <hr class="my-4"/>
+        <div class="col-12">
+            <div class="row goose-loading-indicator justify-content-center" hidden>
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <h4 class="mt-4">Экспорт</h4>
+                <div class="btn-group" role="group">
+                    <button type="button" class="mb-4 btn btn-primary goose-export-result">Только результаты</button>
+                    <button type="button" class="mb-4 btn btn-primary goose-export-full">Целиком</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
