@@ -15,9 +15,9 @@ def hello_world():
         "enumerate": enumerate})
 
 
-@app.route('/upload', methods=['POST'])
-def file_upload_handler():
-    file = request.files['file']
+@app.route('/batch', methods=['POST'])
+def batch_handler():
+    file = request.files['batchInputFile']
     app.logger.debug("Mime-Type: %s; params: %s", file.mimetype, file.mimetype_params)
     if file.filename == '':
         return jsonify({"ok": False, "err": "Empty File"})
@@ -27,8 +27,14 @@ def file_upload_handler():
     if ext not in ALLOWED_EXTENSIONS:
         return jsonify({"ok": False, "err": "Bad file extension"})
 
-    result = model.process(file, request.form)
+    result = model.process_batch(file, request.form)
 
+    return jsonify({"ok": True, "data": result})
+
+
+@app.route('/single', methods=['POST'])
+def manual_handler():
+    result = model.process_single(request.form)
     return jsonify({"ok": True, "data": result})
 
 

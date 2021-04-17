@@ -1,38 +1,57 @@
 (() => {
-  'use strict';
+    'use strict';
 
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
-  const forms = document.querySelectorAll('.needs-validation');
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation');
 
-  // Loop over them and prevent submission
-  Array.prototype.slice.call(forms).forEach((form) => {
-    form.addEventListener('submit', (event) => {
-      if (!form.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      form.classList.add('was-validated');
-    }, false);
-  });
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
 })();
 
-function processServerResponse(data) {
-    if (data.ok) {
-        const columnNames = data.data;
-        $("#columnCounter").text(columnNames.length);
-        $("#columnList").empty();
+const saveData = (function () {
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
 
-        for (const column of columnNames) {
-            $("#columnList").append(
-                $("<li/>")
-                    .addClass("list-group-item d-flex justify-content-between lh-sm")
-                    .append($("<h6/>")
-                        .addClass("my-0")
-                        .text(column)
-                    )
-            );
+    return function (data, fileName) {
+        const blob = new Blob([data], {type: "text/csv"}),
+            url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+})();
+
+function serverResponseCallbackFactory(tableName) {
+    const tblNode = $(tableName);
+    const tbl = new Table(tblNode);
+
+    tblNode.find(".goose-export-result").click(function () {
+        const result = "result\n" + tbl.column("result").join("\n");
+        saveData(result, "result.csv");
+    });
+
+    tblNode.find(".goose-export-full").click(function () {
+        const csv = tbl.exportAsCsv();
+        saveData(csv, "full.csv");
+    });
+
+    function f(data) {
+        if (data.ok) {
+            tbl.loadData(data.data.table);
         }
     }
+
+    return f;
 }
 
 $(document).ready(function () {
@@ -71,21 +90,28 @@ $(document).ready(function () {
     $("#batchCsvDelimiter").change(csvParamsValidator);
     $("#batchCsvDecimal").change(csvParamsValidator);
 
-    $("#fileUploadForm").submit(function (event) {
-        event.preventDefault();
-        const form = $("#fileUploadForm")[0];
-        const formData = new FormData(form);
-        console.log(...formData);
+    const submitHandlerFactory = function (tableName) {
+        return function (event) {
+            event.preventDefault();
+            const form = $(this)[0];
+            const formData = new FormData(form);
 
-        $.ajax({
-            url: $(this).attr("action"),
-            type: "POST",
-            enctype: 'multipart/form-data',
-            data: formData,
-            success: processServerResponse,
-            cache: false,
-            contentType: false,
-            processData: false
-        });
-    });
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "POST",
+                enctype: 'multipart/form-data',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false
+            }).done(serverResponseCallbackFactory(tableName)).fail(function (jqXHR, textStatus, error) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(error);
+            });
+        };
+    };
+
+    $("#manualForm").submit(submitHandlerFactory("#manualTable"));
+    $("#batchForm").submit(submitHandlerFactory("#batchTable"));
 });

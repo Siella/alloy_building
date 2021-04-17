@@ -3,6 +3,42 @@ import os.path
 from sklearn.impute import SimpleImputer, KNNImputer
 import numpy as np
 import sys
+import parameters
+import json
+
+
+def process_dataframe(df):
+    return df.sum(axis=1)
+
+
+def process_single(params):
+    d = dict()
+    for group in parameters.PARAMETERS.values():
+        for elem in group:
+            name = elem["name"]
+            key = elem["key"]
+            if key in params:
+                try:
+                    d[name] = [float(params[key])]
+                except ValueError:
+                    pass
+            else:
+                d[name] = None
+
+    df = pd.DataFrame.from_dict(d)
+    result = process_dataframe(df)
+    df.insert(len(df.columns), "result", result)
+    return {"table": json.loads(df.to_json(orient='split'))}
+
+
+def process_batch(file, options):
+    df = pd.read_csv(file, sep=options.get('delimiter', ','), decimal=options.get('decimal', '.'))
+    result = process_dataframe(df)
+    df.insert(len(df.columns), "result", result)
+    return {"table": json.loads(df.to_json(orient='split'))}
+
+###########################################################################
+
 
 COLUMNS_TO_DROP = ['химсталь последний P',
                    'химсталь последний Si',

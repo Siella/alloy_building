@@ -1,8 +1,8 @@
 {% block manual %}
     <div class="row">
         <div class="col-12">
-            <form class="needs-validation" method="post" id="fileUploadForm"
-                  action="{{ url_for('file_upload_handler') }}" enctype="multipart/form-data" novalidate>
+            <form class="needs-validation" method="post" id="manualForm"
+                  action="{{ url_for('manual_handler') }}" enctype="multipart/form-data" novalidate>
                 {% for idx, (group, elements) in enumerate(parameters.PARAMETERS.items()) %}
                     {% if idx != 0 %}
                         <hr class="my-4"/>
