@@ -34,9 +34,10 @@ const saveData = (function () {
 function serverResponseCallbackFactory(tableName) {
     const tblNode = $(tableName);
     const tbl = new Table(tblNode);
+    let targets = [];
 
     tblNode.find(".goose-export-result").click(function () {
-        const result = "result\n" + tbl.column("result").join("\n");
+        const result = tbl.filterColumns(targets).exportAsCsv();
         saveData(result, "result.csv");
     });
 
@@ -48,6 +49,7 @@ function serverResponseCallbackFactory(tableName) {
     function f(data) {
         if (data.ok) {
             tbl.loadData(data.data.table);
+            targets = data.data.targets;
         }
     }
 
@@ -55,63 +57,73 @@ function serverResponseCallbackFactory(tableName) {
 }
 
 $(document).ready(function () {
-    $(".goose-manual-form-check").change(function () {
+    /*$(".goose-manual-form-check").change(function () {
         const id = this.id.split('Skip')[0];
         $('#' + id).attr('required', !this.checked);
         $('#' + id).attr('disabled', this.checked);
-    });
+    });*/
 
-    $("#batchOutlierMin").change(function () {
-        const val = $(this).val();
-        if (val > $("#batchOutlierMax").val()) {
-            $("#batchOutlierMax").val(val);
+    for (const prefix of ["slag", "final"]) {
+        const minName = prefix + "OutlierMin";
+        const maxName = prefix + "OutlierMax";
+
+        $("#" + minName).change((function (name) {
+            return function () {
+                const val = $(this).val();
+                if (val > $(name).val()) {
+                    $(name).val(val);
+                }
+            };
+        })(maxName));
+
+        $("#" + maxName).change((function (name) {
+            return function () {
+                const val = $(this).val();
+                if (val < $(name).val()) {
+                    $(name).val(val);
+                }
+            };
+        })(minName));
+
+        const csvParamsValidatorFactory = function (prefix) {
+            return function () {
+                const decimal = $("#" + prefix + "CsvDecimal");
+                const delimiter = $("#" + prefix + "CsvDelimiter");
+                if (decimal.val() === delimiter.val()) {
+                    decimal[0].setCustomValidity("Разделители должны быть разными");
+                    delimiter[0].setCustomValidity("Разделители должны быть разными");
+                } else {
+                    decimal[0].setCustomValidity("");
+                    delimiter[0].setCustomValidity("");
+                }
+            };
         }
-    });
 
-    $("#batchOutlierMax").change(function () {
-        const val = $(this).val();
-        if (val < $("#batchOutlierMin").val()) {
-            $("#batchOutlierMin").val(val);
-        }
-    });
+        $("#" + prefix + "CsvDelimiter").change(csvParamsValidatorFactory(prefix));
+        $("#" + prefix + "CsvDecimal").change(csvParamsValidatorFactory(prefix));
 
-    const csvParamsValidator = function () {
-        const decimal = $("#batchCsvDecimal");
-        const delimiter = $("#batchCsvDelimiter");
-        if (decimal.val() === delimiter.val()) {
-            decimal[0].setCustomValidity("Разделители должны быть разными");
-            delimiter[0].setCustomValidity("Разделители должны быть разными");
-        } else {
-            decimal[0].setCustomValidity("");
-            delimiter[0].setCustomValidity("");
-        }
-    };
+        const submitHandlerFactory = function (tableName) {
+            return function (event) {
+                event.preventDefault();
+                const form = $(this)[0];
+                const formData = new FormData(form);
 
-    $("#batchCsvDelimiter").change(csvParamsValidator);
-    $("#batchCsvDecimal").change(csvParamsValidator);
-
-    const submitHandlerFactory = function (tableName) {
-        return function (event) {
-            event.preventDefault();
-            const form = $(this)[0];
-            const formData = new FormData(form);
-
-            $.ajax({
-                url: $(this).attr("action"),
-                type: "POST",
-                enctype: 'multipart/form-data',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
-            }).done(serverResponseCallbackFactory(tableName)).fail(function (jqXHR, textStatus, error) {
-                console.log(jqXHR);
-                console.log(textStatus);
-                console.log(error);
-            });
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    enctype: 'multipart/form-data',
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).done(serverResponseCallbackFactory(tableName)).fail(function (jqXHR, textStatus, error) {
+                    console.log(jqXHR);
+                    console.log(textStatus);
+                    console.log(error);
+                });
+            };
         };
-    };
 
-    $("#manualForm").submit(submitHandlerFactory("#manualTable"));
-    $("#batchForm").submit(submitHandlerFactory("#batchTable"));
+        $("#" + prefix + "Form").submit(submitHandlerFactory("#" + prefix + "Table"));
+    }
 });

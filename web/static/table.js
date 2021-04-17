@@ -4,6 +4,8 @@ class Table {
         this.columns = [];
         this.data = [];
         this.index = [];
+        this.targets = [];
+        this.maxRows = 100;
         this.render();
     }
 
@@ -51,7 +53,7 @@ class Table {
         $(this.rootElement).find(".goose-loading-indicator").show();
     }
 
-    render(maxRows=100) {
+    render() {
         if (this.rootElement == null) {
             return;
         }
@@ -63,7 +65,7 @@ class Table {
         table.append(thead);
 
         const tbody = $("<tbody>");
-        for (let i = 0; i < this.index.length && i < ; ++i) {
+        for (let i = 0; i < this.index.length && i < this.maxRows; ++i) {
             tbody.append(this.buildRow(this.index[i], this.data[i], false));
         }
         table.append(tbody);
@@ -85,5 +87,24 @@ class Table {
         }
 
         return head + "\n" + body.join("\n");
+    }
+
+    filterColumns(cols) {
+        const indices = [];
+        for (const col of cols) {
+            const index = this.columns.indexOf(col);
+            if (index >= 0) {
+                indices.push(index);
+            }
+        }
+
+        const result = new Table(null);
+        result.loadData({
+            columns: indices.map(idx => this.columns[idx]),
+            index: this.index,
+            data: this.data.map(row => indices.map(idx => row[idx]))
+        });
+
+        return result;
     }
 }

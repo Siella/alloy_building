@@ -11,17 +11,17 @@ TARGETS = ['химшлак последний Al2O3', 'химшлак после
 MODEL_NAMES = ['Al2O3', 'R', 'SiO2', 'CaO']
 MODELS = dict()
 for name in MODEL_NAMES:
-    MODELS[name] = pickle.load(open('modell/models/'+name+'.sav', 'rb'))
+    MODELS[name] = pickle.load(open('modelling/models/'+name+'.sav', 'rb'))
 
-with open('cols_for_modelling.txt') as f:
+with open('modelling/utils/cols_for_modelling.txt', encoding='cp1251') as f:
     FEATURES = f.read().splitlines()
 
-with open('cols_for_engineering.txt') as f:
+with open('modelling/utils/cols_for_engineering.txt', encoding='cp1251') as f:
     pairs = f.read().splitlines()
+
 EXTRA_FEAT = []
 for pair in pairs:
-    s = pair[:pair.find('\' \'')+1] + ',' + pair[pair.find('\' \'')+2:]
-    EXTRA_FEAT += [eval(s)]
+    EXTRA_FEAT += [eval(pair)]
 
 class Error(Exception):
     pass
@@ -64,13 +64,7 @@ def map_features(features=[]):
     return numerical_def
 
 
-def make_predictions(PATH_TO_DATA, *arg, **kwargs):
-
-    try:
-        df = pd.read_csv(PATH_TO_DATA, usecols=FEATURES)
-    except InputError:
-        print('Not valid data for predictions')
-
+def make_predictions(df, *arg, **kwargs):
     df = feature_engineering(df)
 
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
