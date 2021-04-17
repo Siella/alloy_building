@@ -3,4 +3,4 @@
 
 Мы реализовали наше решение как простой и лаконичный веб-сервис!
 
-<img src="datagoose.jpg" width="600" height="450">
+<img src="datagoose.png" width="600" height="450">
