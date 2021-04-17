@@ -11,14 +11,17 @@ TARGETS = ['химшлак последний Al2O3', 'химшлак после
 MODEL_NAMES = ['Al2O3', 'R', 'SiO2', 'CaO']
 MODELS = dict()
 for name in MODEL_NAMES:
-    MODELS[name] = pickle.load(open('modelling/models/'+name+'.sav', 'rb'))
+    MODELS[name] = pickle.load(open('../models/'+name+'.sav', 'rb'))
 
-with open('modelling/utils/cols_for_modelling.txt', 'r', encoding='cp1251') as f:
+with open('cols_for_modelling.txt') as f:
     FEATURES = f.read().splitlines()
 
-with open('modelling/utils/cols_for_engineering.txt', 'r', encoding='cp1251') as f:
+with open('cols_for_engineering.txt') as f:
     pairs = f.read().splitlines()
-    EXTRA_FEAT = [eval(pair) for pair in pairs]
+EXTRA_FEAT = []
+for pair in pairs:
+    s = pair[:pair.find('\' \'')+1] + ',' + pair[pair.find('\' \'')+2:]
+    EXTRA_FEAT += [eval(s)]
 
 class Error(Exception):
     pass
@@ -61,16 +64,18 @@ def map_features(features=[]):
     return numerical_def
 
 
-def make_predictions(df, *arg, **kwargs):
+def make_predictions(PATH_TO_DATA, *arg, **kwargs):
+
+    try:
+        df = pd.read_csv(PATH_TO_DATA, usecols=FEATURES)
+    except InputError:
+        print('Not valid data for predictions')
+
     df = feature_engineering(df)
 
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
     preds_Al2O3 = MODELS['Al2O3'].predict(mapper.transform(df))
     df['химшлак последний Al2O3'] = np.exp(preds_Al2O3) # было log-преобразование 
-    
-    mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-    preds_R = MODELS['R'].predict(mapper.transform(df))
-    df['химшлак последний R'] = np.around(preds_R, 2) # ближе к дискретным значения
     
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
     preds_R = MODELS['R'].predict(mapper.transform(df))
