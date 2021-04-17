@@ -1,0 +1,66 @@
+{% block batch %}
+    <div class="row">
+        <div class="col-12">
+            <form class="needs-validation" method="post" id="batchForm"
+                  action="{{ url_for('batch_handler') }}" enctype="multipart/form-data" novalidate>
+                <div class="row g-3">
+                    <div class="col-12 mt-3">
+                        <label class="form-label" for="batchInputFile">Файл CSV с данными</label>
+                        <input type="file" class="form-control" id="batchInputFile" name="batchInputFile" required/>
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <!--                   <div class="col-6">
+                        <label class="form-label" for="batchImputeMethod">Метод заполнения пропусков</label>
+                        <select class="form-select" id="batchImputeMethod" required>
+                            <option value>Выберите...</option>
+                            {% for k, v in model.IMPUTE_METHODS.items() %}
+                                <option value="{{ k }}">{{ v.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>-->
+                    <div class="col-6">
+                        <fieldset>
+                            <legend>Параметры CSV</legend>
+                            <div class="row control-group">
+                                <div class="col-6">
+                                    <label class="control-label input-label" for="batchCsvDelimiter">Разделитель</label>
+                                    <input type="text" class="form-control" id="batchCsvDelimiter" name="batchCsvDelimiter" value="," maxlength="1" required/>
+                                    <div class="invalid-feedback">Эти два поля должны быть разными.</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="control-label input-label" for="batchCsvDecimal">Формат записи дробей</label>
+                                    <input type="text" class="form-control" id="batchCsvDecimal" name="batchCsvDecimal" value="." maxlength="1" required/>
+                                    <div class="invalid-feedback">Эти два поля должны быть разными.</div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-6">
+                        <fieldset>
+                            <legend>Удаление выбросов</legend>
+                            <div class="row control-group">
+                                <div class="col-6">
+                                    <label class="control-label input-label" for="batchOutlierMin">Нижний порог</label>
+                                    <input type="number" class="form-control" id="batchOutlierMin"
+                                           name="batchOutlierMin" value="0" min="0" max="1" step="0.001" required/>
+                                </div>
+                                <div class="col-6">
+                                    <label class="control-label input-label" for="batchOutlierMax">Верхний порог</label>
+                                    <input type="number" class="form-control" id="batchOutlierMax"
+                                           name="batchOutlierMax" value="1" min="0" max="1" step="0.001" required/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-12 text-center">
+                        <input type="submit" class="btn-primary btn-lg btn" id="batchSubmitButton"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% with id="batchTable" %}
+        {% include "table.html" %}
+    {% endwith %}
+{% endblock %}

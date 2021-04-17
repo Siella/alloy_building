@@ -1,0 +1,18 @@
+{% block history %}
+    <div class="row my-3">
+        <div class="col-2"></div>
+        <div class="col-6">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-primary">Число запросов</span>
+            <span class="badge bg-primary rounded-pill" id="columnCounter">0</span>
+        </h4>
+        </div>
+        <div class="col-2">
+                <button class="btn btn-primary" id="historyClear">Очистить</button>
+        </div>
+        <div class="col-2"></div>
+    </div>
+    {% with id="historyTable" %}
+        {% include "table.html" %}
+    {% endwith %}
+{% endblock %}
