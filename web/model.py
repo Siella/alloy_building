@@ -5,10 +5,13 @@ import numpy as np
 import sys
 import parameters
 import json
+import modelling.utils.preds_pipeline as preds_pipeline
+import cleaning
 
 
 def process_dataframe(df):
-    return df.sum(axis=1)
+    df = cleaning.cleaning(df)
+    return preds_pipeline.make_predictions(df)
 
 
 def process_single(params):
@@ -28,14 +31,14 @@ def process_single(params):
     df = pd.DataFrame.from_dict(d)
     result = process_dataframe(df)
     df.insert(len(df.columns), "result", result)
-    return {"table": json.loads(df.to_json(orient='split'))}
+    return {"table": json.loads(df.to_json(orient='split')), "targets": preds_pipeline.TARGETS}
 
 
 def process_batch(file, options):
     df = pd.read_csv(file, sep=options.get('delimiter', ','), decimal=options.get('decimal', '.'))
     result = process_dataframe(df)
     df.insert(len(df.columns), "result", result)
-    return {"table": json.loads(df.to_json(orient='split'))}
+    return {"table": json.loads(df.to_json(orient='split')), "targets": preds_pipeline.TARGETS}
 
 ###########################################################################
 
