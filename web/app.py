@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import os.path
 import model
+import parameters
 
 app = Flask(__name__)
 ALLOWED_EXTENSIONS = {"csv", "xls", "xlsx", "xlsm", "xlsb", "odf", "ods", "odt"}
@@ -8,7 +9,10 @@ ALLOWED_EXTENSIONS = {"csv", "xls", "xlsx", "xlsm", "xlsb", "odf", "ods", "odt"}
 
 @app.route('/')
 def hello_world():
-    return render_template('main.html')
+    return render_template('main.html', **{
+        "model": model,
+        "parameters": parameters,
+        "enumerate": enumerate})
 
 
 @app.route('/upload', methods=['POST'])
@@ -23,7 +27,7 @@ def file_upload_handler():
     if ext not in ALLOWED_EXTENSIONS:
         return jsonify({"ok": False, "err": "Bad file extension"})
 
-    result = model.process(file)
+    result = model.process(file, request.form)
 
     return jsonify({"ok": True, "data": result})
 

@@ -1,0 +1,47 @@
+{% block table %}
+    <div class="row text-center" id="{{ id }}">
+        <hr class="my-4"/>
+        <div class="col-2"></div>
+        <div class="col-8">
+            <div class="row">
+                <table class="table table-hover table-responsive">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">First</th>
+                        <th scope="col">Last</th>
+                        <th scope="col">Handle</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Jacob</td>
+                        <td>Thornton</td>
+                        <td>@fat</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td colspan="2">Larry the Bird</td>
+                        <td>@twitter</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <h4 class="mt-4">Экспорт</h4>
+                <div class="btn-group" role="group">
+                    <button type="button" class="mb-4 btn btn-primary goose-export-result">Только результаты</button>
+                    <button type="button" class="mb-4 btn btn-primary goose-export-full">Целиком</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-2"></div>
+    </div>
+{% endblock %}
