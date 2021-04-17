@@ -21,31 +21,38 @@
 
         <ul class="nav nav-tabs mb-3 justify-content-center" role="tablist" id="myTab">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="manual-tab" data-bs-toggle="tab" href="#manual"
-                        type="button" role="tab" aria-controls="manual" aria-selected="true">Ручной ввод
+                <a class="nav-link active" id="slag-tab" data-bs-toggle="tab" href="#slag"
+                        type="button" role="tab" aria-controls="slag" aria-selected="true">Шлак
                 </a>
             </li>
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="batch-tab" data-bs-toggle="tab" href="#batch"
-                        type="button" role="tab" aria-controls="batch" aria-selected="false">Загрузить файл
+                <a class="nav-link" id="final-tab" data-bs-toggle="tab" href="#final"
+                        type="button" role="tab" aria-controls="final" aria-selected="false">Финал
                 </a>
             </li>
-            <li class="nav-item" role="presentation">
+            <!--li class="nav-item" role="presentation">
                 <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history"
                         type="button" role="tab" aria-controls="history" aria-selected="false">История запросов
                 </a>
-            </li>
+            </li-->
         </ul>
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
-                {% include "manual.html" %}
-            </div>
-            <div class="tab-pane fade" id="batch" role="tabpanel" aria-labelledby="batch-tab">
+            <!--div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                {#% include "manual.html" %#}
+            </div-->
+            {% with prefix="slag" %}
+            <div class="tab-pane fade show active" id="slag" role="tabpanel" aria-labelledby="slag-tab">
                 {% include "batch.html" %}
             </div>
-            <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
-                {% include "history.html" %}
-            </div>
+            {% endwith %}
+            {% with prefix="final" %}
+                <div class="tab-pane fade" id="final" role="tabpanel" aria-labelledby="final-tab">
+                    {% include "batch.html" %}
+                </div>
+            {% endwith %}
+            <!--div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                {#% include "history.html" %#}
+            </div-->
         </div>
     </main>
     <footer class="footer mt-auto py-3 bg-light">

@@ -9,7 +9,7 @@ import modelling.utils.preds_pipeline as preds_pipeline
 import cleaning
 
 
-def process_dataframe(df):
+def process_dataframe(df, task):
     df = cleaning.cleaning(df)
     return preds_pipeline.make_predictions(df)
 
@@ -36,7 +36,9 @@ def process_single(params):
 
 def process_batch(file, options):
     df = pd.read_csv(file, sep=options.get('batchCsvDelimiter', ','), decimal=options.get('batchCsvDecimal', '.'))
-    result = process_dataframe(df)
+    task = options.get("batchTask", "slag")
+
+    result = process_dataframe(df, task)
     for col in result.columns:
         df[col] = result[col]
     return {"table": json.loads(df.to_json(orient='split')), "targets": preds_pipeline.TARGETS}
