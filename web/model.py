@@ -6,12 +6,21 @@ import sys
 import parameters
 import json
 import modelling.utils.preds_pipeline as preds_pipeline
+import modelling.utils.baseline_final as baseline_final
 import cleaning
 
+TARGETS = {
+    "slag": ['химшлак последний Al2O3', 'химшлак последний CaO',
+                   'химшлак последний R', 'химшлак последний SiO2'],
+    "final": ['сыпуч известь РП']
+}
 
 def process_dataframe(df, task):
-    df = cleaning.cleaning(df)
-    return preds_pipeline.make_predictions(df)
+    df = cleaning.cleaning(df, TARGETS[task])
+    if task == "slag":
+        return preds_pipeline.make_predictions(df)
+    else:
+        return baseline_final.make_predictions(df)
 
 
 def process_single(params):
@@ -41,7 +50,7 @@ def process_batch(file, options):
     result = process_dataframe(df, task)
     for col in result.columns:
         df[col] = result[col]
-    return {"table": json.loads(df.to_json(orient='split')), "targets": preds_pipeline.TARGETS}
+    return {"table": json.loads(df.to_json(orient='split')), "targets": list(result.columns)}
 
 ###########################################################################
 

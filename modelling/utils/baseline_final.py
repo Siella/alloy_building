@@ -5,20 +5,23 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn_pandas import DataFrameMapper, gen_features
 
-TARGETS = ['химшлак последний Al2O3', 'химшлак последний CaO',
-           'химшлак последний R', 'химшлак последний SiO2']
 
-MODEL_NAMES = ['xgboost', 'lin_reg_l2', 'lin_reg_l1', 'knn_5', 'random_forest']
+MODEL_NAMES = ['xgboost', 'lin_reg_l2', 'knn_5', 'random_forest']
 MODELS = dict()
 for name in MODEL_NAMES:
-    MODELS[name] = pickle.load(open('../models/'+name+'.sav', 'rb'))
+    MODELS[name] = pickle.load(open('modelling/models/'+name+'.sav', 'rb'))
 
-with open('cols_for_modelling.txt') as f:
+with open('modelling/utils/cols_for_modelling.txt', encoding='cp1251') as f:
     FEATURES = f.read().splitlines()
 
-with open('cols_for_engineering.txt') as f:
+with open('modelling/utils/cols_for_engineering.txt', encoding='cp1251') as f:
     pairs = f.read().splitlines()
-    EXTRA_FEAT = [eval(pair) for pair in pairs]
+
+EXTRA_FEAT = []
+for pair in pairs:
+    EXTRA_FEAT += [eval(pair)]
+
+TARGETS = ['Preds ' + n_model for n_model in MODEL_NAMES]
 
 class Error(Exception):
     pass
@@ -61,19 +64,15 @@ def map_features(features=[]):
     return numerical_def
 
 
-def make_predictions(PATH_TO_DATA, *arg, **kwargs):
-
-    try:
-        df = pd.read_csv(PATH_TO_DATA, usecols=FEATURES)
-    except InputError:
-        print('Not valid data for predictions')
-
+def make_predictions(df, *arg, **kwargs):
     df = feature_engineering(df)
     
+    result = pd.DataFrame()
     
     for n_model in MODEL_NAMES:
         mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-        preds = MODELS[n_model].predict(mapper.transform(df))
-        df['Preds ' + n_model] = np.exp(preds)
+        print(df)
+        preds = MODELS[n_model].predict(mapper.fit_transform(df).values)
+        result['Preds ' + n_model] = preds
     
-    return df
+    return result

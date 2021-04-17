@@ -103,6 +103,7 @@ $(document).ready(function () {
         $("#" + prefix + "CsvDecimal").change(csvParamsValidatorFactory(prefix));
 
         const submitHandlerFactory = function (tableName) {
+            const serverResponseCallback = serverResponseCallbackFactory(tableName);
             return function (event) {
                 event.preventDefault();
                 const form = $(this)[0];
@@ -116,7 +117,7 @@ $(document).ready(function () {
                     cache: false,
                     contentType: false,
                     processData: false
-                }).done(serverResponseCallbackFactory(tableName)).fail(function (jqXHR, textStatus, error) {
+                }).done(serverResponseCallback).fail(function (jqXHR, textStatus, error) {
                     console.log(jqXHR);
                     console.log(textStatus);
                     console.log(error);

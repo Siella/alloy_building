@@ -54,10 +54,8 @@ def knn_impute(df, col):
     df[col] = imp_col
 
 
-def cleaning(df_in, outliers_min=0, outliers_max=1):
+def cleaning(df_in, TARGETS, outliers_min=0, outliers_max=1):
     NOT_DROP = set(['ферспл CaC2', 'произв количество обработок'])
-    TARGETS = ['химшлак последний Al2O3', 'химшлак последний CaO',
-               'химшлак последний R', 'химшлак последний SiO2']
 
     if "МАРКА" in df_in.columns:
         df = df_in[df_in['МАРКА'] == get_pop_steel_grad(df_in)]
@@ -82,6 +80,9 @@ def cleaning(df_in, outliers_min=0, outliers_max=1):
 
     if 'nplv' in df.columns:
         df.drop('nplv', axis=1, inplace=True)
+
+    if 'Unnamed: 0' in df.columns:
+        df.drop('Unnamed: 0', axis=1, inplace=True)
 
     # Ординальные
     dominant_ords = find_ordinal_with_dominant(df, with_dominant_value=True, max_percent=0.9)
