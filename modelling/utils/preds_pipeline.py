@@ -11,7 +11,7 @@ TARGETS = ['химшлак последний Al2O3', 'химшлак после
 MODEL_NAMES = ['Al2O3', 'R', 'SiO2', 'CaO']
 MODELS = dict()
 for name in MODEL_NAMES:
-    MODELS[name] = pickle.load(open('../models/'+name+'.sav', 'rb'))
+    MODELS[name] = pickle.load(open('modell/models/'+name+'.sav', 'rb'))
 
 with open('cols_for_modelling.txt') as f:
     FEATURES = f.read().splitlines()
@@ -40,7 +40,7 @@ def safe_division(x, y):
 
 
 def feature_engineering(df):
-    df_new = df.copy()
+    df_new = df[FEATURES]
     # ratio
     for pair in EXTRA_FEAT:
         new_col = pair[0]+'_'+pair[1]+'_ratio'
@@ -74,20 +74,25 @@ def make_predictions(PATH_TO_DATA, *arg, **kwargs):
     df = feature_engineering(df)
 
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-    preds_Al2O3 = MODELS['Al2O3'].predict(mapper.transform(df))
+    preds_Al2O3 = MODELS['Al2O3'].predict(mapper.fit_transform(df))
     df['химшлак последний Al2O3'] = np.exp(preds_Al2O3) # было log-преобразование 
+
+    # mapper = DataFrameMapper(map_features(df.columns), df_out=True)
+    # preds_R = MODELS['R'].predict(mapper.fit_transform(df))
+    # df['химшлак последний R'] = np.around(preds_R, 2) # ближе к дискретным значения
     
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-    preds_R = MODELS['R'].predict(mapper.transform(df))
+    preds_R = MODELS['R'].predict(mapper.fit_transform(df))
     df['химшлак последний R'] = np.around(preds_R, 2) # ближе к дискретным значения
     df['химшлак последний R_химшлак последний Al2O3_mul'] = df['химшлак последний Al2O3']*df['химшлак последний R'] # смысловая фича
 
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-    preds_SiO2 = MODELS['SiO2'].predict(mapper.transform(df))
+    print("SiO2:\n", MODELS['SiO2'].coef_)
+    preds_SiO2 = MODELS['SiO2'].predict(mapper.fit_transform(df))
     df['химшлак последний SiO2'] = preds_SiO2
 
     mapper = DataFrameMapper(map_features(df.columns), df_out=True)
-    preds_CaO = MODELS['CaO'].predict(mapper.transform(df))
+    preds_CaO = MODELS['CaO'].predict(mapper.fit_transform(df))
     df['химшлак последний CaO'] = preds_CaO
 
     return df[TARGETS]

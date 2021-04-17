@@ -80,6 +80,9 @@ def cleaning(df_in, outliers_min=0, outliers_max=1):
     if 'DT' not in NOT_DROP and 'DT' in df.columns:
         df.drop('DT', axis=1, inplace=True)
 
+    if 'nplv' in df.columns:
+        df.drop('nplv', axis=1, inplace=True)
+
     # Ординальные
     dominant_ords = find_ordinal_with_dominant(df, with_dominant_value=True, max_percent=0.9)
     df.drop(set(dominant_ords) - NOT_DROP, axis=1, inplace=True)
@@ -95,5 +98,7 @@ def cleaning(df_in, outliers_min=0, outliers_max=1):
     # Стратегия knn
     for col in nan_cols:
         knn_impute(df, col)
+
+    df.drop(columns=TARGETS, axis=1, inplace=True)
 
     return df.reset_index(drop=True)

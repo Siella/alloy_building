@@ -35,9 +35,10 @@ def process_single(params):
 
 
 def process_batch(file, options):
-    df = pd.read_csv(file, sep=options.get('delimiter', ','), decimal=options.get('decimal', '.'))
+    df = pd.read_csv(file, sep=options.get('batchCsvDelimiter', ','), decimal=options.get('batchCsvDecimal', '.'))
     result = process_dataframe(df)
-    df.insert(len(df.columns), "result", result)
+    for col in result.columns:
+        df[col] = result[col]
     return {"table": json.loads(df.to_json(orient='split')), "targets": preds_pipeline.TARGETS}
 
 ###########################################################################

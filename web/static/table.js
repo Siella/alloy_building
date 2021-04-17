@@ -35,7 +35,23 @@ class Table {
         $(this.rootElement).show();
     }
 
-    render() {
+    hideTable() {
+        $(this.rootElement).find("table").hide();
+    }
+
+    showTable() {
+        $(this.rootElement).find("table").show();
+    }
+
+    hideWaiting() {
+        $(this.rootElement).find(".goose-loading-indicator").hide();
+    }
+
+    showWaiting() {
+        $(this.rootElement).find(".goose-loading-indicator").show();
+    }
+
+    render(maxRows=100) {
         if (this.rootElement == null) {
             return;
         }
@@ -47,7 +63,7 @@ class Table {
         table.append(thead);
 
         const tbody = $("<tbody>");
-        for (let i = 0; i < this.index.length; ++i) {
+        for (let i = 0; i < this.index.length && i < ; ++i) {
             tbody.append(this.buildRow(this.index[i], this.data[i], false));
         }
         table.append(tbody);
